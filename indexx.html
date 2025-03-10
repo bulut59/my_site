@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebGL Cube with Mouse Control</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script> <!-- Three.js kütüphanesini dahil et -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script> <!-- OrbitControls kütüphanesini dahil et -->
+</head>
+<body>
+    <script>
+        // Sahneyi oluştur
+        const scene = new THREE.Scene();  // WebGL sahnesini oluşturuyoruz. Burası tüm 3D nesnelerin yer aldığı ortamdır.
+
+        // Perspektif kamera oluştur (görünüm açısı, ekran oranı, yakın ve uzak görme mesafeleri)
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000); 
+        // Perspektif kamera 75 derecelik görüş açısı, ekran oranı, 0.1 yakın mesafe ve 1000 uzak mesafe parametreleriyle oluşturulur.
+
+        // WebGL render'ı oluştur
+        const renderer = new THREE.WebGLRenderer();  
+        renderer.setSize(window.innerWidth, window.innerHeight);  // Render boyutlarını pencere boyutlarına göre ayarla.
+        document.body.appendChild(renderer.domElement);  // Renderer'ı HTML belgesine ekle.
+
+        // OrbitControls ekle (fare ile hareket için)
+        const controls = new THREE.OrbitControls(camera, renderer.domElement); 
+        controls.enableDamping = true;  // Hareketi yumuşatır.
+        controls.dampingFactor = 0.05;  // Yumuşatma faktörü, hareketin ne kadar yavaşlatılacağını belirler.
+        controls.screenSpacePanning = false;  // Ekran uzayında kaydırma kapalı.
+        controls.maxDistance = 10;  // Kamera ile en fazla ne kadar uzağa gidilebileceğini belirler.
+        controls.minDistance = 2;  // Kamera ile en az ne kadar yakınlaşılabileceğini belirler.
+
+        // Küpü oluştur
+        const geometry = new THREE.BoxGeometry();  // Küp geometrisini oluşturur.
+        const material = new THREE.MeshNormalMaterial();  // Küp için normal materyali kullanır, renkler otomatik olarak ayarlanır.
+        const cube = new THREE.Mesh(geometry, material);  // Geometri ve materyali birleştirip bir küp oluşturur.
+        scene.add(cube);  // Küpü sahneye ekler.
+
+        // Kameranın başlangıç pozisyonu
+        camera.position.z = 5;  // Kamerayı Z ekseninde 5 birim uzaklığa yerleştiririz.
+
+        // Animasyon fonksiyonu
+        function animate() {
+            requestAnimationFrame(animate);  // Animasyonu sürekli tekrar et.
+            controls.update();  // Kontrolleri güncelle, böylece fare hareketlerine tepki verilebilir.
+            renderer.render(scene, camera);  // Sahneyi render et (görsel çıktıyı oluştur).
+        }
+        animate();  // Animasyonu başlat.
+
+        // Sayfa boyutu değiştiğinde yeniden boyutlandır
+        window.addEventListener('resize', () => {  // Ekran boyutunun değişmesi durumunda.
+            renderer.setSize(window.innerWidth, window.innerHeight);  // Render boyutlarını güncelle.
+            camera.aspect = window.innerWidth / window.innerHeight;  // Kameranın en-boy oranını güncelle.
+            camera.updateProjectionMatrix();  // Kamera projeksiyonunu güncelle.
+        });
+    </script>
+
+    <div style="position: absolute; top: 10px; left: 10px; color: white; font-family: Arial, sans-serif;">
+        <h2>Kare Özellikleri:</h2>
+        <ul>
+            <li><strong>Şekil:</strong> Küp (3D kare)</li>
+            <li><strong>Boyut:</strong> Küpün her kenarının uzunluğu eşittir ve 1 birimdir.</li>
+            <li><strong>Renk:</strong> Renkler, yüzeylerin normallerine göre otomatik olarak ayarlanır.</li>
+            <li><strong>Hareket:</strong> Fare ile 3D ortamda döndürülebilir ve yakınlaştırılabilir/uzaklaştırılabilir.</li>
+            <li><strong>Konum:</strong> Küp, sahnede merkezi bir konumda yer alır.</li>
+        </ul>
+    </div>
+</body>
+</html>
