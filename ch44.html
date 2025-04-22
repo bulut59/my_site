@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CH₄ Molekülü 3D Model (Mouse Kontrollü)</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+      color: #333;
+      background-color: #f0f0f0; /* Açık gri arka plan */
+    }
+
+    canvas {
+      display: block;
+    }
+
+    .info-box {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 1em;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+      max-width: 90vw;
+      font-size: 0.5rem; /* Yazıyı %50'den daha fazla küçültüldü */
+    }
+
+    .info-box h2 {
+      margin-top: 0;
+      font-size: 0.7rem; /* Başlık daha da küçültüldü */
+    }
+  </style>
+</head>
+<body>
+<div class="info-box">
+  <h2>CH₄ Molekülü Özellikleri</h2>
+  <ul>
+    <li><strong>İsim:</strong> Metan</li>
+    <li><strong>Kimyasal Formül:</strong> CH₄</li>
+    <li><strong>Moleküler Geometri:</strong> Dört yüzlü</li>
+    <li><strong>Bağ Tipi:</strong> Kovalent Bağ</li>
+    <li><strong>Polarite:</strong> Apolar</li>
+    <li><strong>Durum:</strong> Gaz (oda sıcaklığında)</li>
+    <li><strong>Kullanım Alanları:</strong> Yakıt, kimyasal sentez, enerji üretimi.</li>
+  </ul>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/controls/OrbitControls.js"></script>
+
+<script>
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x000000);
+
+  const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+  const renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  document.body.appendChild(renderer.domElement);
+
+  const light = new THREE.PointLight(0xffffff, 1.5);
+  light.position.set(10, 10, 10);
+  scene.add(light);
+
+  const ambientLight = new THREE.AmbientLight(0x404040);
+  scene.add(ambientLight);
+
+  const controls = new THREE.OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.05;
+
+  const carbonRadius = 0.6;
+  const hydrogenRadius = 0.3;
+
+  const carbonGeometry = new THREE.SphereGeometry(carbonRadius, 32, 32);
+  const carbonMaterial = new THREE.MeshPhongMaterial({ color: 0x333333 });
+  const carbon = new THREE.Mesh(carbonGeometry, carbonMaterial);
+  scene.add(carbon);
+
+  const hydrogenGeometry = new THREE.SphereGeometry(hydrogenRadius, 32, 32);
+  const hydrogenMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff });
+
+  const positions = [
+    [1.5, 1.5, 1.5],
+    [-1.5, -1.5, 1.5],
+    [-1.5, 1.5, -1.5],
+    [1.5, -1.5, -1.5]
+  ];
+
+  positions.forEach(pos => {
+    const hydrogen = new THREE.Mesh(hydrogenGeometry, hydrogenMaterial);
+    hydrogen.position.set(...pos);
+    scene.add(hydrogen);
+    createBond(carbon, hydrogen);
+  });
+
+  function createBond(atom1, atom2) {
+    const dir = new THREE.Vector3().subVectors(atom2.position, atom1.position);
+    const len = dir.length();
+    const bondGeometry = new THREE.CylinderGeometry(0.05, 0.05, len, 32);
+    const bondMaterial = new THREE.MeshPhongMaterial({ color: 0xaaaaaa });
+    const bond = new THREE.Mesh(bondGeometry, bondMaterial);
+
+    const midPoint = new THREE.Vector3().addVectors(atom1.position, atom2.position).multiplyScalar(0.5);
+    bond.position.copy(midPoint);
+
+    bond.lookAt(atom2.position);
+    bond.rotateX(Math.PI / 2);
+
+    scene.add(bond);
+  }
+
+  camera.position.z = 6;
+
+  function animate() {
+    requestAnimationFrame(animate);
+    controls.update();
+    renderer.render(scene, camera);
+  }
+
+  animate();
+
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+</script>
+</body>
+</html>
